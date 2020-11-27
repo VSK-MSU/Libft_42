@@ -11,86 +11,82 @@
 /* ************************************************************************** */
 
 #include "libft.h"
-#include <stdio.h>
 
-static int	word_length(char const *s, char delimeter)
+static int		word_count(char const *s, char c)
 {
-	int		ans;
+	int	i;
+	int	n;
 
-	ans = 0;
-	while (*s && *s == delimeter)
-		s++;
-	while (*s && *s != delimeter)
-	{
-		s++;
-		ans++;
-	}
-	return (ans);
-}
-
-static int	words(char const *s, char delimeter)
-{
-	int		ans;
-
-	ans = 0;
+	i = 0;
+	n = 1;
 	while (*s)
 	{
-		while (*s && *s == delimeter)
-			s++;
-		if (*s)
-			ans++;
-		while (*s && *s != delimeter)
-			s++;
-	}
-	return (ans);
-}
-
-static int	fill_word(char **fill_me, char const **src, char delimeter)
-{
-	while (**src && **src == delimeter)
-		(*src)++;
-	*fill_me = ft_substr(*src, 0, word_length(*src, delimeter));
-	if (!(*fill_me))
-		return (0);
-	while (**src && **src != delimeter)
-		(*src)++;
-	return (1);
-}
-
-static void	free_all(char ***split_adr, int subwords)
-{
-	while (subwords)
-	{
-		free((*split_adr)[subwords - 1]);
-		subwords--;
-	}
-	free(*split_adr);
-	*split_adr = NULL;
-}
-
-char		**ft_split(char const *s, char c)
-{
-	char		**split;
-	const char	*s_adr;
-	int			check;
-	int			i;
-
-	if (!s || !(*s))
-		return (NULL);
-	s_adr = s;
-	i = 0;
-	split = (char **)malloc(sizeof(*split) * (words(s, c) + 1));
-	check = 0;
-	if (split && words(s, c))
-	{
-		while (words(s, c) && (check = fill_word(&(split[i]), &s, c)))
+		if (*s == c)
+			n = 1;
+		if (*s != c && n == 1)
+		{
+			n = 0;
 			i++;
-		if (!check)
-			free_all(&split, words(s_adr, c) - words(s, c));
-		else
-			split[i] = NULL;
+		}
+		s++;
 	}
-	else if (split)
-		split[i] = NULL;
-	return (&(split[0]));
+	return (i);
+}
+
+static int		word_len(char const *s, int start, char c)
+{
+	unsigned int	len;
+
+	len = 0;
+	while (s[start] && s[start] != c)
+	{
+		len++;
+		start++;
+	}
+	return (len);
+}
+
+static char		**free_all(char **str)
+{
+	while (*str)
+		free(*str++);
+	free(str);
+	return (NULL);
+}
+
+static char		**main_part(char **str, char const *s, char c, int count)
+{
+	int	start;
+	int	i;
+
+	start = 0;
+	i = 0;
+	while (count > 0)
+	{
+		while (s[start] == c && s[start])
+			start++;
+		str[i] = ft_substr(s, start, word_len(s, start, c));
+		if (!(str[i]))
+			return (free_all(str));
+		i++;
+		start += word_len(s, start, c);
+		count--;
+	}
+	str[i] = NULL;
+	return (str);
+}
+
+char			**ft_split(char const *s, char c)
+{
+	int		count;
+	char	**str;
+
+	if (!(s))
+		return (NULL);
+	count = word_count(s, c);
+	str = (char**)malloc(sizeof(*str) * (count + 1));
+	if (!str)
+		return (NULL);
+	str = main_part(str, s, c, count);
+	return (str);
 }

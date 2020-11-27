@@ -14,17 +14,23 @@
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {
-	char	*ans;
+	int		i;
+	int		k;
+	char	*a;
 
-	if (!s1 && !s2)
-		return (ft_strdup(""));
-	if (!s1)
-		return (ft_strdup(s2));
-	if (!s2)
-		return (ft_strdup(s1));
-	ans = ft_strdup(s1);
-	if (!ans)
+	if (!s1 || !s2)
 		return (NULL);
-	ft_strlcat(ans, s2, ft_strlen(ans) + ft_strlen(s2) + 1);
-	return (ans);
+	k = ft_strlen((char*)s1) + ft_strlen((char*)s2);
+	a = (char*)malloc(sizeof(char) * (k + 1));
+	if (!(a))
+		return (NULL);
+	i = 0;
+	k = 0;
+	while (((char*)s1)[i])
+		a[k++] = ((char*)s1)[i++];
+	i = 0;
+	while (((char*)s2)[i])
+		a[k++] = ((char*)s2)[i++];
+	a[k] = '\0';
+	return (a);
 }
